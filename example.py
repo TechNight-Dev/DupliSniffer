@@ -1,3 +1,5 @@
+#! /usr/bin/python
+
 '''Source: https://www.pythoncentral.io/finding-duplicate-files-with-python/'''
 '''This is an example file of how to use the hashlib module to find duplicate
 files. Essentially I am copying and commenting code that I found in the above
