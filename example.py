@@ -25,6 +25,7 @@ def hashfile(path, blocksize = 65536):
     buf = aFile.read(blocksize)
 
     while len(buf) > 0:
+        hasher.update(buf)
         buf = aFile.read(blocksize)
     aFile.close()
 
@@ -109,4 +110,4 @@ if __name__ == '__main__':
     else:
         print('Usage: python example.py <folder> or python example.py <folder1> <folder2> <folder3>')
 
-# Doesn't check duplicates properly. Need to debug.git
+# Doesn't check duplicates properly. Need to debug
