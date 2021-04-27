@@ -15,7 +15,8 @@ def hashfile(path, blocksize = 65536):
 
     Args:
         path (string): path to file to be hashed
-        blocksize (int, optional): [description]. Defaults to 65536.
+        blocksize (int, optional): Defaults to 65536. How many bytes to read at
+        one time while hashing the file. Default is 64kbs.
 
     Returns:
         string: MD5 hash of provided file
