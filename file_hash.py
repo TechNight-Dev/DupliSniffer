@@ -3,14 +3,20 @@
 import os
 import hashlib
 
+# TODO: Eventually add changing the type of hash used.
+# Need to figure out what hashes are available
+# Most likely use a dictionary to store types and the functions used.
+# {'md5': hashlib.md5(), }
+
 class HashedFile():
 
-    def __init__(self, path):
+    def __init__(self, path, hash_type='md5'):
         if os.path.exists(path):
             self.path = path
         else:
             raise Error("File path does not exist")
 
+        self.hash_type = hash_type
         self.duplicate = False
         self.hash = self.calculate_hash()
         self.file_name = os.path.basename(self.path)
