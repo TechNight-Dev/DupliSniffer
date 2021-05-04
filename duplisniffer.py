@@ -52,17 +52,18 @@ def remove_nondups(hash_dict: dict) -> dict:
     
     return dups
 
-def create_log(content:dict, path:str = '.'):
+def create_log(content:list):
     """ Create a text file containing list of hashes and duplicates """
 
-    if not os.path.isdir(path):
-        raise Error(f"{path} is not an existing directory")
-
-    with open(os.path.join(path, "log.txt"), 'w') as log:
-        for key, values in content.items():
-            log.write(key)
-            for value in values:
-                log.write("\t", value.path)
+    with open("./log.txt", 'w') as log:
+        for item in content:
+            if type(item) is dict:
+                for key, values in item.items():
+                    log.write(f"Hash: {key}\n")
+                    for value in values:
+                        log.write(f"\t{value.path}\n")
+            else:
+                log.write(f"{item.file_name}: {item.hash}\n")
 
 def display_results(dict_content:dict):
     """ Displays the results of the dictionary where the value is a list """
@@ -88,8 +89,8 @@ parser.add_argument('Path', metavar='PATH', type=str, nargs='+',
 parser.add_argument("-a", "--Algorithm",
                     help = "Choose the type of hash to use.")
 
-parser.add_argument("-l", "--Log", type = str,
-                    help = "Path to folder to store log file")
+parser.add_argument("-l", "--Log", action='store_true',
+                    help = "Create log.txt file in current directory")
 
 
 # Read the arguments provided
@@ -101,11 +102,20 @@ if args.Path[0].lower() == 'show':
     print()
     sys.exit()
 
+results = []
+
 for path in args.Path:
     if os.path.isdir(path):
         files = walk_path(path)
         hash_dict = find_dups(files, args.Algorithm)
+        if args.Log:
+            results.append(hash_dict)
         display_results(hash_dict)
     else:
         a_file = HashedFile(path, args.Algorithm)
+        if args.Log:
+            results.append(a_file)
         print(f"{a_file.file_name}: {a_file.hash}")
+
+if len(results) > 0:
+    create_log(results)
