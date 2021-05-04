@@ -1,5 +1,7 @@
 #! /usr/bin/python
 
+# https://www.programcreek.com/python/example/102910/hashlib.algorithms_guaranteed
+
 import os
 import hashlib
 
@@ -11,15 +13,18 @@ import hashlib
 class HashedFile():
 
     def __init__(self, path, hash_type='md5'):
-        if os.path.exists(path):
-            self.path = path
-        else:
+        self.path = path
+        if not os.path.exists(self.path):
             raise Error("File path does not exist")
 
-        self.hash_type = hash_type
+        self.hash_type = hash_type.lower()
+        if self.hash_type not in hashlib.algorithms_guaranteed:
+            raise Error(f'Algorithm {hash_type} is not supported')
+        
         self.duplicate = False
         self.hash = self.calculate_hash()
         self.file_name = os.path.basename(self.path)
+
 
     def __eq__(self, other_hash):
         if isinstance(other_hash, HashedFile):
@@ -29,7 +34,7 @@ class HashedFile():
 
     def calculate_hash(self, blocksize=65536):
         
-        hasher = hashlib.md5()
+        hasher = getattr(hashlib, self.hash_type)()
 
         with open(self.path, 'rb') as a_file:
             buf = a_file.read(blocksize)
@@ -43,8 +48,11 @@ class HashedFile():
     def is_duplicate(self):
         self.duplicate = True
 
-    def del_file():
+    def del_file(self):
         os.remove(self.path)
+
+    def get_file_type(self):
+        pass
 
 if __name__ == '__main__':
     a_file = HashedFile('/home/derpy/Coding/Python/Practice/os_walk.py')
