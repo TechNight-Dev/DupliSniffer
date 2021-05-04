@@ -9,8 +9,9 @@ import sys
 import argparse
 import os
 from file_hash import HashedFile
+from hashlib import algorithms_guaranteed
 
-def walk_path(dir_path: list) -> list:
+def walk_path(dir_path: str) -> list:
     """ Take a path to a folder and then return a list of all files found in
         the folder. """
 
@@ -58,46 +59,53 @@ def create_log(content:dict, path:str = '.'):
         raise Error(f"{path} is not an existing directory")
 
     with open(os.path.join(path, "log.txt"), 'w') as log:
-        log.write(content)
+        for key, values in content.items():
+            log.write(key)
+            for value in values:
+                log.write("\t", value.path)
+
+def display_results(dict_content:dict):
+    """ Displays the results of the dictionary where the value is a list """
+
+    for key, values in dict_content.items():
+        print("Hash: ", key)
+        print(f'Found {len(values)} duplicates')
+        for value in values:
+            print("\t", value.path)
 
 # Message displayed in the help menu
-msg = "Used to find duplicate files by comparing hashes of files."
+msg = "Used to find duplicate files by comparing hashes of files. Type 'show' \
+to view available algorithms"
 prog_name = "duplisniffer"
 
 # Initialize the parser
 parser = argparse.ArgumentParser(prog = prog_name,
                                  description = msg)
 
-parser.add_argument('Path', metavar='path', type=str, nargs='+',
+parser.add_argument('Path', metavar='PATH', type=str, nargs='+',
                     help="Path to directory to scan for duplicates")
 
-# Add optional arguments below
-parser.add_argument("-t", "--Type", help = "Choose the type of hash to use.")
-parser.add_argument("-f", "--File", type = str, default = None,
-                    help = "Returns hash of file")
-parser.add_argument("-l", "--Log", type = str, default = None,
+parser.add_argument("-a", "--Algorithm",
+                    help = "Choose the type of hash to use.")
+
+parser.add_argument("-l", "--Log", type = str,
                     help = "Path to folder to store log file")
+
 
 # Read the arguments provided
 args = parser.parse_args()
 
-if args.Type:
-    files = walk_path(args.Path, args.Type)
-else:
-    files = walk_path(args.Path)
+if args.Path[0].lower() == 'show':
+    for key in algorithms_guaranteed:
+        print(key, end=", ")
+    print()
+    sys.exit()
 
-hash_dict = find_dups(files)
-for key, values in hash_dict.items():
-    print(key)
-    for value in values:
-        print("\t", value.path)
-
-
-if args.Directories:
-    print(f"Directories still being implemented.")
-
-if args.File:
-    print(f"File will be implemented")
-
-if args.Log:
-    print(f"Log feature will be implemented")
+for path in args.Path:
+    if os.path.isdir(path):
+        files = walk_path(path)
+        hash_dict = find_dups(files, args.Algorithm)
+        display_results(hash_dict)
+    else:
+        a_file = HashedFile(path, args.Algorithm)
+        print(f"{a_file.file_name}: {a_file.hash}")

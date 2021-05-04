@@ -12,14 +12,18 @@ import hashlib
 
 class HashedFile():
 
-    def __init__(self, path, hash_type='md5'):
+    def __init__(self, path, hash_type=None):
         self.path = path
         if not os.path.exists(self.path):
-            raise Error("File path does not exist")
+            raise Exception("File path does not exist")
 
-        self.hash_type = hash_type.lower()
+        if hash_type == None:
+            self.hash_type = 'md5'
+        else:
+            self.hash_type = hash_type.lower()
+            
         if self.hash_type not in hashlib.algorithms_guaranteed:
-            raise Error(f'Algorithm {hash_type} is not supported')
+            raise Exception(f"Algorithm '{hash_type}' is not supported")
         
         self.duplicate = False
         self.hash = self.calculate_hash()
